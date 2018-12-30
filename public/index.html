@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="X-UA-Compatible" content="ie=edge" />
+    <title>Web Assembly C Demo</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+      }
+
+      #canvas {
+        display: block;
+        margin: 2rem;
+        border: 2px solid red;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas id="canvas"></canvas>
+    <script src="app.js"></script>
+    <script>
+      const canvas = document.getElementById('canvas');
+      const context = canvas.getContext('2d');
+      const h = 600;
+      const w = 600;
+
+      canvas.width = w;
+      canvas.height = h;
+
+      const render = (dataLength, circleStructSize) => {
+        context.clearRect(0, 0, w, h);
+
+        const circles = new Int32Array(
+          Module.buffer,
+          _getCircles(w, h),
+          dataLength
+        );
+
+        for (let i = 0; i < circles.length; i += circleStructSize) {
+          let circle = circles.slice(i, i + circleStructSize);
+          context.beginPath();
+          context.arc(circle[0], circle[1], circle[2], 0, 2 * Math.PI, false);
+          context.fillStyle = `rgba(${circle[3]}, ${circle[4]}, ${
+            circle[5]
+          }, 1)`;
+          context.fill();
+        }
+
+        window.requestAnimationFrame(() => {
+          render(dataLength, circleStructSize);
+        });
+      };
+    </script>
+  </body>
+</html>
